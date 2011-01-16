@@ -29,7 +29,7 @@ role :app, "royvandewater.com"
 # =============================================================================
 # OPTIONAL VARIABLES
 # =============================================================================
-set :deploy_to, "/home/74103/users/.home/domains/royvandewater.com/html/presentations" # defaults to "/u/apps/#{application}"
+set :deploy_to, "/home/74103/users/.home/domains/royvandewater.com/presentations" # defaults to "/u/apps/#{application}"
 set :user, "royvandewater.com"            # defaults to the currently logged in user
 set :scm, :git               # defaults to :subversion
 # set :svn, "/path/to/svn"       # defaults to searching the PATH
@@ -43,6 +43,6 @@ namespace :deploy do
   end
 
   task :default do
-    cd "cd #{deploy_to} && git pull origin master"
+    run "cd #{deploy_to} && git pull -q origin master"
   end
 end
