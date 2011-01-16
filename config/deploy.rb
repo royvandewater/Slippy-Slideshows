@@ -38,8 +38,11 @@ set :scm, :git               # defaults to :subversion
 # set :gateway, "gate.host.com"  # default to no gateway
 
 namespace :deploy do
-  task :deploy do
-    run "rm -rf 
+  task :setup do
     run "git clone -q #{repository} #{deploy_to}"
+  end
+
+  task :default do
+    cd "cd #{deploy_to} && git pull origin master"
   end
 end
