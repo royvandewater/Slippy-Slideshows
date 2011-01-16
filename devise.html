@@ -163,21 +163,27 @@
 
         <div class="slide">
             <h1>Email Verification</h1>
-            <p>Code is just pre tags with class="brush: &lt;language&gt;"</p>
-            <p>The eval class combined with the js brush makes that Execute link appear on the right</p>
-            <pre class="brush: js eval">
-                // in eval'd block, slide is the current slide
-                $(slide).css('background', '#533');
-                // and node is the code block
-                $(node).css('opacity', '.1');
-            </pre>
-            <p>Nifty feature for JS devs doing presentations</p>
-            <br />
-            <p>Also if you use alert() in your code, it's piped into those nicer boxes</p>
-            <pre class="brush: js eval">
-                alert('test');
-            </pre>
-            <p>This is really great to provide interaction during a presentation</p>
+            <div class="vcenter" >
+              <p>To require email confirmation, uncomment the following line from the devise migration:</p>
+              <pre class="brush: ruby">
+                t.confirmable
+              </pre>
+
+              <p>And further down:</p>
+              <pre class="brush: ruby">
+                add_index :users, :confirmation_token,   :unique => true
+              </pre>
+
+              <p>And add ":confirmable" to the devise line in your user model:</p>
+              <pre class="brush: ruby">
+                devise :database_authenticatable, :registerable,
+                       :recoverable, :rememberable, :trackable, :validatable,
+                       :confirmable
+              </pre>
+              <p>Then rerun your migrations and you're done</p>
+              <br/>
+              <p>Note: The development server must be restarted to recognize "user_confirmation_url" as a valid path</p>
+            </div>
         </div>
 
         <div class="slide">
