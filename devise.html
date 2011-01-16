@@ -70,8 +70,10 @@
     </head>
     <body>
         <div class="slide">
-            <h1>Authentication with Devise</h1>
-            <h2>Roy van de Water</h2>
+            <div class="vcenter">
+              <h1>Authentication with Devise</h1>
+              <h1>Roy van de Water</h1>
+            </div>
         </div>
 
         <div class="slide">
@@ -85,43 +87,82 @@
                     <li>Custom encryptors</li>
                     <li>Accounts scoped to subdomains</li>
                     <li>Token authentication</li>
-  <!-- * Single access token -->
-  <!-- * Permanent access token -->
-<!-- * Using Http Basic Auth (with and without token) -->
-<!-- * Oath with twitter/facebook (using them to log in) -->
-<!-- * OmniAuth with openID -->
-<!-- * Mongo support (mongoid) -->
+                    <li>Single access token</li>
+                    <li>Permanent access token</li>
+                    <li>Using Http Basic Auth (with and without token)</li>
+                    <li>Oath with twitter/facebook (using them to log in)</li>
+                    <li>OmniAuth with openID</li>
+                    <li>Mongo support (mongoid)</li>
                 </ul>
             </div>
         </div>
 
-        <div class="slide" layout="alt">
-            <h1>Layouts</h1>
-            <h2>This slide uses the "alt" layout</h2>
-            <p>It inherits the class "nochrome" of the layout, which allows you to style it differently, and it doesn't have the footer div that the default layout has for example</p>
-            <p>By default, all slides use the default layout if it's present</p>
-            <p>Layouts must have a &lt;content&gt;&lt;/content&gt; tag that will be replaced by each slide's content</p>
-            <pre class="brush: html">
-                <div class="slide" layout="alt">
-                    Foo
+        <div class="slide">
+            <h1>Basic Setup</h1>
+            <ol>
+              <li>Add devise to Gemfile</li>
+              <li>
+                Run Devise installation generator
+                <pre class="brush: bash">
+                  rails g devise:install
+                </pre>
+              </li>
+              <li>
+                Add your action mailer default host configuration to the appropriate environments
+                <div style="font-size: 0.7em">
+                  <pre class="brush: ruby">
+                    config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+                  </pre>
                 </div>
-
-                <div class="layout" name="default">
-                    <h1>Some title</h1>
-                    <content></content>
-                    <div class="footer">
-                        Footer content
-                    </div>
-                </div>
-
-                <div class="layout nochrome" name="alt">
-                    <content></content>
-                </div>
-            </pre>
+              </li>
+              <li>
+                Define your homepage in the routes file
+                <pre class="brush: ruby">
+                  root :to => "static#index"
+                </pre>
+              </li>
+              <li>
+                Add the alert and notice flash messages to your application layout
+                <pre class="brush: html">
+                  <p class="notice"><%= notice %></p>
+                  <p class="alert"><%= alert %></p>
+                </pre>
+              </li>
+              <li>
+                Run Devise generator:
+                <pre class="brush: shell">
+                  rails g devise user
+                </pre>
+              </li>
+            </ol>
         </div>
 
         <div class="slide">
-            <h1>Syntax Highlighting</h1>
+          <h1>Handy Helpers</h1>
+          <div class="vcenter" style="line-height: 2em">
+            <ul>
+              <li>Use the user_signed_in? helper predicate to check if a user is logged in</li>
+              <li>The sign in path is "new_user_session_path"</li>
+              <li>The sign out path is "destroy_user_session_path"</li>
+            </ul>
+            <pre class="brush: ruby">
+              <% unless user_signed_in? -%>
+                <li><%= link_to "Sign in", new_user_session_path %></li>
+              <% else -%>
+                <li><%= link_to "Sign out", destroy_user_session_path %></li>
+              <% end -%>
+            </pre>
+            <ul>
+              <li>Add the following before filter to require authentication</li>
+            </ul>
+            <pre class="brush: ruby">
+              before_filter :authenticate_user!
+            </pre>
+          </div>
+        </div>
+
+        <div class="slide">
+            <h1>Email Verification</h1>
             <p>Code is just pre tags with class="brush: &lt;language&gt;"</p>
             <p>The eval class combined with the js brush makes that Execute link appear on the right</p>
             <pre class="brush: js eval">
@@ -154,10 +195,10 @@
         <div class="layout" name="default">
             <content></content>
             <div class="footer">
-                <span class="left">Jordi Boggiano</span>
-                <span class="right">Slippy on <a href="http://github.com/Seldaek/slippy/">github</a></span>
-                <span class="left">Blog <a href="http://seld.be/">seld.be</a></span>
-                <span class="right">Twitter <a href="http://twitter.com/seldaek">@seldaek</a></span>
+                <span class="left">Roy van de Water</span>
+                <span class="right">Roy on <a href="http://github.com/royvandewater/">github</a></span>
+                <span class="left">Blog <a href="http://royvandewater.com/blog">royvandewater.com</a></span>
+                <span class="right">Twitter <a href="http://twitter.com/royvandewater">@royvandewater</a></span>
                 <hr class="defloat" />
             </div>
         </div>
