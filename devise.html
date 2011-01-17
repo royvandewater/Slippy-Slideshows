@@ -158,44 +158,141 @@
             <pre class="brush: ruby">
               before_filter :authenticate_user!
             </pre>
+            <ul>
+              <li>Use "current_user" to retrieve the currently logged in user</li>
+            </ul>
           </div>
         </div>
 
         <div class="slide">
-            <h1>Email Verification</h1>
-            <div class="vcenter" >
-              <p>To require email confirmation, uncomment the following line from the devise migration:</p>
-              <pre class="brush: ruby">
-                t.confirmable
-              </pre>
+          <h1>Email Verification</h1>
+          <div class="vcenter" >
+            <p>To require email confirmation, uncomment the following lines from the devise migration:</p>
+            <pre class="brush: ruby">
+              # Rails.root/db/migrations/2011011620391_devise_create_users.rb
+              def self.up
+                create_table(:users) do |t|
+                  t.confirmable
+                end
 
-              <p>And further down:</p>
-              <pre class="brush: ruby">
                 add_index :users, :confirmation_token,   :unique => true
-              </pre>
+              end
+            </pre>
 
-              <p>And add ":confirmable" to the devise line in your user model:</p>
-              <pre class="brush: ruby">
-                devise :database_authenticatable, :registerable,
-                       :recoverable, :rememberable, :trackable, :validatable,
-                       :confirmable
-              </pre>
-              <p>Then rerun your migrations and you're done</p>
-              <br/>
-              <p>Note: The development server must be restarted to recognize "user_confirmation_url" as a valid path</p>
-            </div>
+            <p>And add ":confirmable" to the devise line in your user model:</p>
+            <pre class="brush: ruby">
+              # Rails.root/app/models/user.rb
+              devise :database_authenticatable, :registerable,
+                     :recoverable, :rememberable, :trackable, :validatable,
+                     :confirmable
+            </pre>
+            <p>Then rerun your migrations and you're done</p>
+            <br/>
+            <p>Note: The development server must be restarted to recognize "user_confirmation_url" as a valid path</p>
+          </div>
         </div>
 
         <div class="slide">
-            <h1>Syntax Highlighting</h1>
-            <pre class="brush: php">
-                function foo($var) {
-                    // this is some php code as an example
-                    $foo = new Class("meh");
-                    $foo->bar();
-                }
+          <h1>Custom Views</h1>
+          <div class="vcenter">
+            <p>By default, devise uses its own views, located inside the gem.</p>
+            <br />
+            <p>To use custom sign in and new user registration forms run the following devise generator:</p>
+            <pre class="brush: ruby">
+              rails g devise:views
             </pre>
-            <p>That's it for now, enjoy!</p>
+            <p>This pulls in all devise views, allowing them to be changed.</p>
+            <br />
+            <p>Note: You can overwrite only the views you want to update. Missing views will automatically
+               be retrieved from the gem</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Custom Actions</h1>
+          <div class="vcenter">
+            <p>To execute custom code on login/logout, override the sessions controller:</p>
+            <div style="font-size: 0.8em">
+              <pre class="brush: ruby">
+                # Rails.root/app/controllers/sessions.rb
+                class SessionsController < Devise::SessionsController
+
+                  def create
+                    logger.info "Attempt to sign in by #{ params[:user][:email] }"
+                    super
+                  end
+
+                  def destroy
+                    logger.info "#{ current_user.email } signed out"
+                    super
+                  end
+                end
+              </pre>
+            </div>
+
+            <p>And point the devise routes line at your new controller:</p>
+            <pre class="brush: ruby">
+              # Rails.root/config/routes.rb
+              devise_for :users, :controllers => { :sessions => :sessions }
+            </pre>
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Custom Encryptor</h1>
+          <p>Create your own custom encryptor in the lib directory of the rails app:</p>
+          <pre class="brush: ruby">
+            # Rails.root/lib/devise/encryptors/rot13.rb
+            module Devise
+              module Encryptors
+                class Rot13 < Base
+                  def self.digest(password, stretches, salt, pepper)
+                    "#{password}-#{salt}".tr! "A-Za-z", "N-ZA-Mn-za-m"
+                  end
+                end
+              end
+            end
+          </pre>
+
+          <p>Then require and select your new encryptor in the Devise initializer</p>
+          <pre class="brush: ruby">
+            # Rails.root/config/initializers/devise.rb
+            require "devise/encryptors/rot13"
+
+            Devise.setup do |config|
+              config.encryptor = :rot13
+            end
+          </pre>
+        </div>
+
+        <div class="slide">
+          <h1>Token Authenticatable</h1>
+          <div class="vcenter" >
+            <p>To enable token authentication uncomment the following lines from the devise migration:</p>
+            <pre class="brush: ruby">
+              # Rails.root/db/migrations/2011011620391_devise_create_users.rb
+              def self.up
+                create_table(:users) do |t|
+                  t.token_authenticatable
+                end
+              end
+            </pre>
+
+            <p>And add ":token_authenticatable" to the devise line in your user model:</p>
+            <pre class="brush: ruby">
+              # Rails.root/app/models/user.rb
+              devise :database_authenticatable, :registerable,
+                     :recoverable, :rememberable, :trackable, :validatable,
+                     :token_authenticatable
+            </pre>
+            <p>The authentication token can be generated using</p>
+            <pre class="brush: ruby">
+              @user.reset_authentication_token!</p>
+            </pre>
+            <p>The user can now authenticate himself like this: <br />
+               "http://localhost:3000/?auth_token=OyZSe8ozy_os5acibqNC" <br />
+               or by passing the auth_token as the username in HTTP Basic Auth</p>
+          </div>
         </div>
 
         <div class="layout" name="default">
