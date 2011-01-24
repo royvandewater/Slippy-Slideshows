@@ -22,7 +22,7 @@ set :repository, "git@github.com:royvandewater/Slippy-Slideshows.git"
 # be used to single out a specific subset of boxes in a particular role, like
 # :primary => true.
 
-role :web, "royvandewater.com"
+role :app, "royvandewater.com"
 
 # =============================================================================
 # OPTIONAL VARIABLES
@@ -30,4 +30,12 @@ role :web, "royvandewater.com"
 set :deploy_to, "/home/deploy/apps/#{application}" # defaults to "/u/apps/#{application}"
 set :user, "deploy"            # defaults to the currently logged in user
 set :scm, :git               # defaults to :subversion
-set :use_sudo, false
+set :use_sudo, :true
+
+namespace :deploy do
+  task :restart do
+    run "ln -nf #{shared_path}/slippy/src/*.php #{current_release}/"
+    run "ln -nf #{shared_path}/config.php #{current_release}/"
+    run "chmod -R 755 #{current_release}"
+  end
+end
