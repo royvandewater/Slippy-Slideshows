@@ -10,8 +10,8 @@
 # correspond to. The deploy_to path must be the path on each machine that will
 # form the root of the application path.
 
-set :application, "Slippy-Slideshows"
-set :repository, "git@github.com:royvandewater/#{application}.git"
+set :application, "presentations"
+set :repository, "git@github.com:royvandewater/Slippy-Slideshows.git"
 
 
 # =============================================================================
@@ -24,25 +24,15 @@ set :repository, "git@github.com:royvandewater/#{application}.git"
 # :primary => true.
 
 role :web, "royvandewater.com"
-role :app, "royvandewater.com"
+role :app, "#{application}"
 
 # =============================================================================
 # OPTIONAL VARIABLES
 # =============================================================================
-set :deploy_to, "/home/74103/users/.home/domains/royvandewater.com/presentations" # defaults to "/u/apps/#{application}"
-set :user, "royvandewater.com"            # defaults to the currently logged in user
+# set :deploy_to, "/home/deploy/apps/presentations" # defaults to "/u/apps/#{application}"
+set :user, "deploy"            # defaults to the currently logged in user
 set :scm, :git               # defaults to :subversion
 # set :svn, "/path/to/svn"       # defaults to searching the PATH
 # set :darcs, "/path/to/darcs"   # defaults to searching the PATH
 # set :cvs, "/path/to/cvs"       # defaults to searching the PATH
 # set :gateway, "gate.host.com"  # default to no gateway
-
-namespace :deploy do
-  task :setup do
-    run "git clone -q #{repository} #{deploy_to}"
-  end
-
-  task :default do
-    run "cd #{deploy_to} && git pull -q origin master"
-  end
-end
