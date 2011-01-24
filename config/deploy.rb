@@ -23,7 +23,6 @@ set :repository, "git@github.com:royvandewater/Slippy-Slideshows.git"
 # :primary => true.
 
 role :web, "royvandewater.com"
-role :app, "#{application}"
 
 # =============================================================================
 # OPTIONAL VARIABLES
