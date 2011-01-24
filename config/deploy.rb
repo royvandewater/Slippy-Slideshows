@@ -13,7 +13,6 @@
 set :application, "presentations"
 set :repository, "git@github.com:royvandewater/Slippy-Slideshows.git"
 
-
 # =============================================================================
 # ROLES
 # =============================================================================
@@ -32,7 +31,4 @@ role :app, "#{application}"
 # set :deploy_to, "/home/deploy/apps/presentations" # defaults to "/u/apps/#{application}"
 set :user, "deploy"            # defaults to the currently logged in user
 set :scm, :git               # defaults to :subversion
-# set :svn, "/path/to/svn"       # defaults to searching the PATH
-# set :darcs, "/path/to/darcs"   # defaults to searching the PATH
-# set :cvs, "/path/to/cvs"       # defaults to searching the PATH
-# set :gateway, "gate.host.com"  # default to no gateway
+set :use_sudo, false
