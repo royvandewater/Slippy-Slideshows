@@ -27,7 +27,7 @@ role :web, "royvandewater.com"
 # =============================================================================
 # OPTIONAL VARIABLES
 # =============================================================================
-# set :deploy_to, "/home/deploy/apps/presentations" # defaults to "/u/apps/#{application}"
+set :deploy_to, "/home/deploy/apps/#{application}" # defaults to "/u/apps/#{application}"
 set :user, "deploy"            # defaults to the currently logged in user
 set :scm, :git               # defaults to :subversion
 set :use_sudo, false
