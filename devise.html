@@ -85,14 +85,14 @@
                     <li>Custom Views</li>
                     <li>Overriding login/logout actions</li>
                     <li>Custom encryptors</li>
-                    <li>Accounts scoped to subdomains</li>
                     <li>Token authentication</li>
-                    <li>Single access token</li>
                     <li>Permanent access token</li>
-                    <li>Using Http Basic Auth (with and without token)</li>
-                    <li>Oath with twitter/facebook (using them to log in)</li>
-                    <li>OmniAuth with openID</li>
+                    <li>Single access token</li>
+                    <li>Using Http Basic Auth</li>
+                    <li>Simple Administrative Access</li>
+                    <li>Dual User Roles</li>
                     <li>Mongo support (mongoid)</li>
+                    <li>Accounts scoped to subdomains</li>
                 </ul>
             </div>
         </div>
@@ -256,6 +256,7 @@
               # Rails.root/config/routes.rb
               devise_for :users, :controllers => { :sessions => :sessions }
             </pre>
+            <p>The views for the overwritten controller must be copied locally into apps/views/sessions</p>
           </div>
         </div>
 
@@ -315,6 +316,128 @@
                or by passing the auth_token as the username in HTTP Basic Auth</p>
           </div>
         </div>
+
+        <div class="slide">
+          <h1>Single Access Token</h1>
+          <div class="vcenter" >
+            <p>Authentication tokens are permanent by default</p>
+
+            <br />
+
+            <p>To create a single access token, clear or reset it on token login</p>
+
+            <br />
+
+            <p>
+              Devise adds the instance method <strong>after_token_authentication</strong> 
+              to the user model and calls it after every successful token login
+            </p>
+
+            <br />
+
+            <p>To clear the authentication token, add the following to the user model:</p>
+
+            <pre class="brush: ruby">
+              def after_token_authentication
+                update_attributes :authentication_token => nil
+              end
+            </pre>
+
+            <p>To reset the authentication, use the built in token reset method:</p>
+
+            <pre class="brush: ruby">
+              def after_token_authentication
+                reset_authentication_token!
+              end
+            </pre>
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Using HTTP Basic Auth</h1>
+          <div class="vcenter" >
+            <p>Devise disables basic auth by default</p>
+
+            <br />
+
+            <p>
+              To enable, uncomment the following line from config/initializers/devise.rb and 
+              set its value to true (and restart the server):
+            </p>
+
+            <pre class="brush: ruby">
+              config.http_authenticatable = true
+            </pre>
+
+            <br />
+
+            <p>To test if devise is now accepting HTTP Basic Auth, try the following curl statement:</p>
+            <pre class="brush: bash">
+              curl -u user@example.com:password http://localhost:3000/users
+            </pre>
+
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Simple Administrative Access</h1> 
+                    
+          <p>Add a boolean to the user model</p>
+          <pre class="brush: ruby">
+            class AddIsAdminToUsers < ActiveRecord::Migration
+              def self.up
+                add_column :users, :is_admin, :boolean
+              end
+          </pre>
+          <p>And add a before filter to whatever actions require admin access</p>
+          <pre class="brush: ruby">
+            # In controller
+            before_filter :require_admin!, :except => [:index, :show]
+
+            # In application controller
+            protected
+            def require_admin!
+              unless current_user.try :is_admin?
+                redirect_to root_path, :alert => "Access Denied"
+              end
+            end
+            &nbsp;
+          </pre>
+          <p>
+            Note: For more complex permissions, including permit and restriction functionality,
+            take a look at <a href="https://github.com/kristianmandrup/cream">cream</a>
+          </p>
+        </div>
+
+        <div class="slide">
+          <h1>Dual User Roles</h1>
+          <p>Run the devise generator for your second user type</p>
+          <pre class="brush: bash">
+            rails g devise employee
+          </pre>
+          <p>The employee user now has his own login path, found at <strong>new_employee_session_path</strong></p>
+          <br />
+          <p>
+            Additionaly helpers include <strong>employee_signed_id?, current_employee</strong> and the 
+            <strong>authenticate_employee!</strong> before filter
+          </p>
+          <br />
+          <p>Actions that need to allow either user type can use the following before filter:</p>
+          <pre class="brush: ruby">
+            # In the controller
+            before_filter :require_user_or_employee!
+
+            # In the application controller
+            protected
+            def require_user_or_employee!
+              unless user_signed_in? or employee_signed_in?
+                redirect_to root_path, :alert => "Access Denied"
+              end
+            end
+          </pre>
+
+        </div>
+
 
         <div class="layout" name="default">
             <content></content>
