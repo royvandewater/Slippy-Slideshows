@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+        <!-- Slide meta data, remove/edit as you see fit -->
+        <title>Authentication with Devise</title>
+        <meta name="generator" content="Organic" />
+        <meta name="author" content="Roy van de Water" />
+        <meta name="company" content="Integrum Technologies LLC" />
+        <meta name="email" content="me@royvandewater.com" />
+        <meta name="date" content="2011-01-16" />
+        <meta name="venue" content="Gangplank" />
+        <!-- Slippy core file and dependencies -->
+        <script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="jquery.history.js"></script>
+        <script type="text/javascript" src="slippy-0.9.0.js"></script>
+        <!-- Slippy structural styles -->
+        <link type="text/css" rel="stylesheet" href="slippy-0.9.0.css"/>
+        <!-- Slippy theme -->
+        <link type="text/css" rel="stylesheet" href="slippy-dark.css"/>
+        <!-- Syntax highlighting core file  -->
+        <script type="text/javascript" src="highlighter/shCore.js"></script>
+        <!-- Syntax highlighting brushes, remove those you don't need -->
+        <script type="text/javascript" src="highlighter/shBrushBash.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushCpp.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushCSharp.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushCss.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushDelphi.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushDiff.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushGroovy.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushJava.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushJScript.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushPhp.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushPlain.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushPython.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushRuby.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushScala.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushSql.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushVb.js"></script>
+        <script type="text/javascript" src="highlighter/shBrushXml.js"></script>
+        <!-- Syntax highlighting styles-->
+        <link type="text/css" rel="stylesheet" href="highlighter/shCore.css"/>
+        <link type="text/css" rel="stylesheet" href="highlighter/shThemeEclipse.css"/>
+        <!-- Slippy init code -->
+        <script type="text/javascript">
+            $(function() {
+                $(".slide").slippy({
+                    // settings go here
+                    // possible values are:
+                    //  - animLen, duration for default animations (0 = disabled)
+                    //  - animInForward, receives a slide and animates it
+                    //  - animInRewind, receives a slide and animates it
+                    //  - animOutForward, receives a slide and animates it
+                    //  - animOutRewind, receives a slide and animates it
+                    //  - baseWidth, defines the base for img resizing, if you don't want only
+                    //    full-width images, specify this as the pixel width of a slide so that
+                    //    images are scaled properly (default is 620px wide)
+                    //  - ratio, defines the width/height ratio of the slides, defaults to 1.3 (620x476)
+                });
+                SyntaxHighlighter.all();
+            });
+        </script>
+        <!-- Custom style for this deck -->
+        <style type="text/css">
+            .slide.nochrome {
+                border: 0;
+                background: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="slide">
+            <div class="vcenter">
+              <h1>Authentication with Devise</h1>
+              <h1>Roy van de Water</h1>
+            </div>
+        </div>
+
+        <div class="slide">
+            <h1>Covered in this presentation:</h1>
+            <div class="vcenter">
+                <ul>
+                    <li>Basic Setup</li>
+                    <li>Email Verification</li>
+                    <li>Custom Views</li>
+                    <li>Overriding login/logout actions</li>
+                    <li>Custom encryptors</li>
+                    <li>Token authentication</li>
+                    <li>Permanent access token</li>
+                    <li>Single access token</li>
+                    <li>Using Http Basic Auth</li>
+                    <li>Simple Administrative Access</li>
+                    <li>Dual User Roles</li>
+                    <li>Let user login using either username or email</li>
+                    <li>Accounts scoped to subdomains</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide">
+            <h1>Helpful Links</h1>
+            <div class="vcenter">
+              <p>
+                Devise: <a href="http://github.com/plataformate/devise">http://github.com/plataformate/devise</a>
+                <br />
+                <br />
+              </p>
+              <p>
+                Slides: <a href="http://presentations.royvandewater.com/?file=devise.html">http://presentations.royvandewater.com/?file=devise.html</a>
+                <br />
+                <br />
+              </p>
+              <p>
+                Project on Github: <a href="http://github.com/royvandewater/devise-samples">http://github.com/royvandewater/devise-samples</a>
+                <br />
+                <br />
+              </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <h1>Basic Setup</h1>
+            <ol>
+              <li>Add devise to Gemfile</li>
+              <li>
+                Run Devise installation generator
+                <pre class="brush: bash">
+                  rails g devise:install
+                </pre>
+              </li>
+              <li>
+                Add your action mailer default host configuration to the appropriate environments
+                <div style="font-size: 0.7em">
+                  <pre class="brush: ruby">
+                    config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+                  </pre>
+                </div>
+              </li>
+              <li>
+                Define your homepage in the routes file
+                <pre class="brush: ruby">
+                  root :to => "static#index"
+                </pre>
+              </li>
+              <li>
+                Add the alert and notice flash messages to your application layout
+                <pre class="brush: html">
+                  <p class="notice"><%= notice %></p>
+                  <p class="alert"><%= alert %></p>
+                </pre>
+              </li>
+              <li>
+                Run Devise generator:
+                <pre class="brush: shell">
+                  rails g devise user
+                </pre>
+              </li>
+            </ol>
+        </div>
+
+        <div class="slide">
+          <h1>Handy Helpers</h1>
+          <div class="vcenter" style="line-height: 2em">
+            <ul>
+              <li>Use the user_signed_in? helper predicate to check if a user is logged in</li>
+              <li>The sign in path is "new_user_session_path"</li>
+              <li>The sign out path is "destroy_user_session_path"</li>
+            </ul>
+            <pre class="brush: ruby">
+              <% unless user_signed_in? -%>
+                <li><%= link_to "Sign in", new_user_session_path %></li>
+              <% else -%>
+                <li><%= link_to "Sign out", destroy_user_session_path %></li>
+              <% end -%>
+            </pre>
+            <ul>
+              <li>Add the following before filter to require authentication</li>
+            </ul>
+            <pre class="brush: ruby">
+              before_filter :authenticate_user!
+            </pre>
+            <ul>
+              <li>Use "current_user" to retrieve the currently logged in user</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Email Verification</h1>
+          <div class="vcenter" >
+            <p>To require email confirmation, uncomment the following lines from the devise migration:</p>
+            <pre class="brush: ruby">
+              # Rails.root/db/migrations/2011011620391_devise_create_users.rb
+              def self.up
+                create_table(:users) do |t|
+                  t.confirmable
+                end
+
+                add_index :users, :confirmation_token,   :unique => true
+              end
+            </pre>
+
+            <p>And add ":confirmable" to the devise line in your user model:</p>
+            <pre class="brush: ruby">
+              # Rails.root/app/models/user.rb
+              devise :database_authenticatable, :registerable,
+                     :recoverable, :rememberable, :trackable, :validatable,
+                     :confirmable
+            </pre>
+            <p>Then rerun your migrations and you're done</p>
+            <br/>
+            <p>Note: The development server must be restarted to recognize "user_confirmation_url" as a valid path</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Custom Views</h1>
+          <div class="vcenter">
+            <p>By default, devise uses its own views, located inside the gem.</p>
+            <br />
+            <p>To use custom sign in and new user registration forms run the following devise generator:</p>
+            <pre class="brush: ruby">
+              rails g devise:views
+            </pre>
+            <p>This pulls in all devise views, allowing them to be changed.</p>
+            <br />
+            <p>Note: You can overwrite only the views you want to update. Missing views will automatically
+               be retrieved from the gem</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Custom Actions</h1>
+          <div class="vcenter">
+            <p>To execute custom code on login/logout, override the sessions controller:</p>
+            <div style="font-size: 0.8em">
+              <pre class="brush: ruby">
+                # Rails.root/app/controllers/sessions.rb
+                class SessionsController < Devise::SessionsController
+
+                  def create
+                    logger.info "Attempt to sign in by #{ params[:user][:email] }"
+                    super
+                  end
+
+                  def destroy
+                    logger.info "#{ current_user.email } signed out"
+                    super
+                  end
+                end
+              </pre>
+            </div>
+
+            <p>And point the devise routes line at your new controller:</p>
+            <pre class="brush: ruby">
+              # Rails.root/config/routes.rb
+              devise_for :users, :controllers => { :sessions => :sessions }
+            </pre>
+            <p>The views for the overwritten controller must be copied locally into apps/views/sessions</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Custom Encryptor</h1>
+          <p>Create your own custom encryptor in the lib directory of the rails app:</p>
+          <pre class="brush: ruby">
+            # Rails.root/lib/devise/encryptors/rot13.rb
+            module Devise
+              module Encryptors
+                class Rot13 < Base
+                  def self.digest(password, stretches, salt, pepper)
+                    "#{password}-#{salt}".tr! "A-Za-z", "N-ZA-Mn-za-m"
+                  end
+                end
+              end
+            end
+          </pre>
+
+          <p>Then require and select your new encryptor in the Devise initializer</p>
+          <pre class="brush: ruby">
+            # Rails.root/config/initializers/devise.rb
+            require "devise/encryptors/rot13"
+
+            Devise.setup do |config|
+              config.encryptor = :rot13
+            end
+          </pre>
+        </div>
+
+        <div class="slide">
+          <h1>Token Authenticatable</h1>
+          <div class="vcenter" >
+            <p>To enable token authentication uncomment the following lines from the devise migration:</p>
+            <pre class="brush: ruby">
+              # Rails.root/db/migrations/2011011620391_devise_create_users.rb
+              def self.up
+                create_table(:users) do |t|
+                  t.token_authenticatable
+                end
+              end
+            </pre>
+
+            <p>And add ":token_authenticatable" to the devise line in your user model:</p>
+            <pre class="brush: ruby">
+              # Rails.root/app/models/user.rb
+              devise :database_authenticatable, :registerable,
+                     :recoverable, :rememberable, :trackable, :validatable,
+                     :token_authenticatable
+            </pre>
+            <p>The authentication token can be generated using</p>
+            <pre class="brush: ruby">
+              @user.reset_authentication_token!
+            </pre>
+            <p>The user can now authenticate himself like this: <br />
+            <a href="http://localhost:3000/?auth_token=OyZSe8ozy_os5acibqNC">http://localhost:3000/?auth_token=OyZSe8ozy_os5acibqNC</a> <br />
+               or by passing the auth_token as the username in HTTP Basic Auth</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Single Access Token</h1>
+          <div class="vcenter" >
+            <p>Authentication tokens are permanent by default</p>
+
+            <br />
+
+            <p>To create a single access token, clear or reset it on token login</p>
+
+            <br />
+
+            <p>
+              Devise adds the instance method <strong>after_token_authentication</strong> 
+              to the user model and calls it after every successful token login
+            </p>
+
+            <br />
+
+            <p>To clear the authentication token, add the following to the user model:</p>
+
+            <pre class="brush: ruby">
+              def after_token_authentication
+                update_attributes :authentication_token => nil
+              end
+            </pre>
+
+            <p>To reset the authentication, use the built in token reset method:</p>
+
+            <pre class="brush: ruby">
+              def after_token_authentication
+                reset_authentication_token!
+              end
+            </pre>
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Using HTTP Basic Auth</h1>
+          <div class="vcenter" >
+            <p>Devise disables basic auth by default</p>
+
+            <br />
+
+            <p>
+              To enable, uncomment the following line from config/initializers/devise.rb and 
+              set its value to true (and restart the server):
+            </p>
+
+            <pre class="brush: ruby">
+              config.http_authenticatable = true
+            </pre>
+
+            <br />
+
+            <p>To test if devise is now accepting HTTP Basic Auth, try the following curl statement:</p>
+            <pre class="brush: bash">
+              curl -u user@example.com:password http://localhost:3000/users
+            </pre>
+
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Simple Administrative Access</h1> 
+                    
+          <p>Add a boolean to the user model</p>
+          <pre class="brush: ruby">
+            class AddIsAdminToUsers < ActiveRecord::Migration
+              def self.up
+                add_column :users, :is_admin, :boolean
+              end
+          </pre>
+          <p>And add a before filter to whatever actions require admin access</p>
+          <pre class="brush: ruby">
+            # In controller
+            before_filter :require_admin!, :except => [:index, :show]
+
+            # In application controller
+            protected
+            def require_admin!
+              unless current_user.try :is_admin?
+                redirect_to root_path, :alert => "Access Denied"
+              end
+            end
+            &nbsp;
+          </pre>
+          <p>
+            Note: For more complex permissions, including permit and restriction functionality,
+            take a look at <a href="https://github.com/kristianmandrup/cream">cream</a>
+          </p>
+        </div>
+
+        <div class="slide">
+          <h1>Dual User Roles</h1>
+          <p>Run the devise generator for your second user type</p>
+          <pre class="brush: bash">
+            rails g devise employee
+          </pre>
+          <p>The employee user now has his own login path, found at <strong>new_employee_session_path</strong></p>
+          <br />
+          <p>
+            Additionaly helpers include <strong>employee_signed_id?, current_employee</strong> and the 
+            <strong>authenticate_employee!</strong> before filter
+          </p>
+          <br />
+          <p>Actions that need to allow either user type can use the following before filter:</p>
+          <pre class="brush: ruby">
+            # In the controller
+            before_filter :require_user_or_employee!
+
+            # In the application controller
+            protected
+            def require_user_or_employee!
+              unless user_signed_in? or employee_signed_in?
+                redirect_to root_path, :alert => "Access Denied"
+              end
+            end
+          </pre>
+
+        </div>
+        
+        <div class="slide">
+          <h1>Login with email or username</h1>
+
+          <p>Add the username attribute to the user model:</p>
+          <pre class="brush: bash">
+            rails g add_username_to_users username:string  
+          </pre>
+
+          <p>Override the <strong>find_for_database_authentication</strong> method in the user controller:</p>
+          <pre class="brush: ruby">
+            protected
+            def self.find_for_database_authentication(conditions)
+              login = conditions.delete(:login)
+              where(conditions)
+              .where(["username = :login OR email = :login", 
+                     {:login => login}])
+              .first
+            end
+          </pre>
+
+          <p>
+            Uncomment the <strong>config.authentication_keys</strong> line in the devise initializers and replace
+            <strong>:email</strong> with <strong>:login</strong>
+          </p>
+          <pre class="brush: ruby">
+            config.authentication_keys = [ :login ]
+          </pre>
+
+          <p>Add the login as an attr_accessor on the user model</p>
+          <pre class="brush: ruby">
+            attr_accessor :login 
+          </pre>
+        </div>
+
+        <div class="slide">
+          <h1>Login with email or username (Part 2)</h1>
+
+          <div class="vcenter">
+            <p>Update the registration and login view (remember to run the devise:views generator)</p>
+            <pre class="brush: ruby">
+              # app/views/devise/sessions/new.html.erb
+              <p>
+                <%= f.label :login %><br />
+                <%= f.text_field :login %>
+              </p>
+
+              # app/views/devise/registrations/new.html.erb
+              <p>
+                <%= f.label :username %><br />
+                <%= f.text_field :username %>
+              </p>
+            </pre>
+          </div>
+        </div>
+
+        <div class="slide">
+          <h1>Login from anywhere on the site</h1>
+          <div class="vcenter">
+            <p>Add a login form that posts to the user_sessions_path</p>
+            <pre class="brush: rails"> 
+<%= form_for(:user, :url => user_session_path) do |f| %>
+    <%= f.label :email %>
+    <%= f.text_field :email %>
+
+    <%= f.label :password %>
+    <%= f.password_field :password %>
+
+    <%= f.submit "Sign in" %>
+<% end %>
+            </pre>
+          </div>
+        </div>
+
+        <div class="slide">
+            <h1>Questions?</h1>
+            <div class="vcenter">
+              <strong>Those Helpful Links Again</strong>
+              <p>
+                Devise: <a href="http://github.com/plataformate/devise">http://github.com/plataformate/devise</a>
+                <br />
+                <br />
+              </p>
+              <p>
+                Slides: <a href="http://presentations.royvandewater.com/?file=devise.html">http://presentations.royvandewater.com/?file=devise.html</a>
+                <br />
+                <br />
+              </p>
+              <p>
+                Project on Github: <a href="http://github.com/royvandewater/devise-samples">http://github.com/royvandewater/devise-samples</a>
+                <br />
+                <br />
+              </p>
+            </div>
+        </div>
+
+
+        <div class="layout" name="default">
+            <content></content>
+            <div class="footer">
+                <span class="left">Roy van de Water</span>
+                <span class="right">Roy on <a href="http://github.com/royvandewater/">github</a></span>
+                <span class="left">Blog <a href="http://royvandewater.com/blog">royvandewater.com</a></span>
+                <span class="right">Twitter <a href="http://twitter.com/royvandewater">@royvandewater</a></span>
+                <hr class="defloat" />
+            </div>
+        </div>
+
+        <div class="layout nochrome" name="alt">
+            <content></content>
+        </div>
+    </body>
+</html>
