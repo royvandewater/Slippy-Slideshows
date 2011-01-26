@@ -493,6 +493,46 @@
           </div>
         </div>
 
+        <div class="slide">
+          <h1>Login from anywhere on the site</h1>
+          <div class="vcenter">
+            <p>Add a login form that posts to the user_sessions_path</p>
+            <pre class="brush: rails"> 
+<%= form_for(:user, :url => user_session_path) do |f| %>
+    <%= f.label :email %>
+    <%= f.text_field :email %>
+
+    <%= f.label :password %>
+    <%= f.password_field :password %>
+
+    <%= f.submit "Sign in" %>
+<% end %>
+            </pre>
+          </div>
+        </div>
+
+        <div class="slide">
+            <h1>Questions?</h1>
+            <div class="vcenter">
+              <strong>Those Helpful Links Again</strong>
+              <p>
+                Devise: <a href="http://github.com/plataformate/devise">http://github.com/plataformate/devise</a>
+                <br />
+                <br />
+              </p>
+              <p>
+                Slides: <a href="http://presentations.royvandewater.com/?file=devise.html">http://presentations.royvandewater.com/?file=devise.html</a>
+                <br />
+                <br />
+              </p>
+              <p>
+                Project on Github: <a href="http://github.com/royvandewater/devise-samples">http://github.com/royvandewater/devise-samples</a>
+                <br />
+                <br />
+              </p>
+            </div>
+        </div>
+
 
         <div class="layout" name="default">
             <content></content>
