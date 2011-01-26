@@ -91,7 +91,7 @@
                     <li>Using Http Basic Auth</li>
                     <li>Simple Administrative Access</li>
                     <li>Dual User Roles</li>
-                    <li>Mongo support (mongoid)</li>
+                    <li>Let user login using either username or email</li>
                     <li>Accounts scoped to subdomains</li>
                 </ul>
             </div>
@@ -436,6 +436,61 @@
             end
           </pre>
 
+        </div>
+        
+        <div class="slide">
+          <h1>Login with email or username</h1>
+
+          <p>Add the username attribute to the user model:</p>
+          <pre class="brush: bash">
+            rails g add_username_to_users username:string  
+          </pre>
+
+          <p>Override the <strong>find_for_database_authentication</strong> method in the user controller:</p>
+          <pre class="brush: ruby">
+            protected
+            def self.find_for_database_authentication(conditions)
+              login = conditions.delete(:login)
+              where(conditions)
+              .where(["username = :login OR email = :login", 
+                     {:login => login}])
+              .first
+            end
+          </pre>
+
+          <p>
+            Uncomment the <strong>config.authentication_keys</strong> line in the devise initializers and replace
+            <strong>:email</strong> with <strong>:login</strong>
+          </p>
+          <pre class="brush: ruby">
+            config.authentication_keys = [ :login ]
+          </pre>
+
+          <p>Add the login as an attr_accessor on the user model</p>
+          <pre class="brush: ruby">
+            attr_accessor :login 
+          </pre>
+        </div>
+
+        <div class="slide">
+          <h1>Login with email or username (Part 2)</h1>
+
+          <div class="vcenter">
+            <p>Update the registration and login view (remember to run the devise:views generator)</p>
+            <pre class="brush: ruby">
+              # app/views/devise/sessions/new.html.erb
+              <p>
+                <%= f.label :login %><br />
+                <%= f.text_field :login %>
+              </p>
+
+              # app/views/devise/registrations/new.html.erb
+              <p>
+                <%= f.label :username %><br />
+                <%= f.text_field :username %>
+              </p>
+            </pre>
+          </div>
         </div>
 
 
